@@ -26,11 +26,27 @@ module.exports = {
     // El gato o gata debe guardarse como un objeto con el siguiente formato:
     // { name: name,  age: '1 year' , color: []}
     // En caso exitoso debe retornar el string '<nombre del gato o gata> fue creado correctamente'.
+    let gato = {
+      name: name,
+      age: '1 year',
+      color: [],
+      accessories: [],
+    };
+    let gatitoRep = cats.filter(e => e.name === name);
+    if (gatitoRep.length) {
+      throw new Error('El gato o gata ya existe');
+    }
+    cats.push(gato);
+    return `${gato.name} fue creado correctamente`;
   },
 
   listCats: function (age) {
     // En caso de recibir el parámetro <age>, devuelve sólo los gatos correspondientes a dicho age.
     // Si no recibe parámetro, devuelve un arreglo con todos los gatos.
+    if (!age) return cats;
+    const catsFound = cats.filter(g => g.age === age);
+
+    return catsFound;
   },
 
   addAccessory: function ({ id, color, type, description }) {
@@ -39,6 +55,20 @@ module.exports = {
     // Debe devolver el mensaje 'El accesorio <type> fue agregado correctamente'
     // Inicialmente debe guardar la propiedad <popularity> del accesorio como 'low' por defecto
     // Si la descripción supera los 140 caracteres, debe arrojar un error
+    const accesoryFound = accessories.find(a => a.id === id);
+    if (accesoryFound)
+      throw new Error(`El accesorio con el id ${id} ya existe`);
+    if (description.length > 140)
+      throw new Error('La descripción supera los 140 caracteres');
+    accessories.push({
+      id: id,
+      color: color,
+      type: type,
+      description: description,
+      popularity: 'low',
+    });
+
+    return `El accesorio ${type} fue agregado correctamente'`;
   },
 
   getAccessories: function (type, color) {
@@ -46,6 +76,12 @@ module.exports = {
     // Si recibe parámetro "type", debe retornar  los accesorios que coincidan con el tipo.
     // Si recibe parámetro "color" debe retornar los accesorios que coincidan con el color
     // Si recibe ambos parámetros, se devuelven los accesorios que coincidan con el color o con el tipo
+    let accesoriesFound = accessories.filter(
+      c => c.type === type || c.color === color
+    );
+    if (accesoriesFound.length) return accesoriesFound;
+
+    return accessories;
   },
 
   deleteAccessory: function (id) {
