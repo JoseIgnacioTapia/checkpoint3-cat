@@ -88,6 +88,13 @@ module.exports = {
     // Elimina un accesorio del array
     // Si el id no existe dentro del array de accesorios, arrojar un Error ('El accesorio con el id <id> no fue encontrado')
     // Una vez eliminado el accesorio del array, devolver un mensaje que diga 'El accesorio con el id <id> fue eliminado correctamente'
+    const accesoryFound = accessories.find(a => a.id === id);
+    if (!accesoryFound)
+      throw new Error(`El accesorio con el id ${id} no fue encontrado`);
+    const index = accessories.indexOf(accesoryFound);
+    accessories.splice(index, 1);
+
+    return `El accesorio con el id ${id} fue eliminado correctamente`;
   },
 
   modifyAccessory: function (obj) {
@@ -95,6 +102,18 @@ module.exports = {
     // Si el id no existe dentro del array de accesorios arrojar un Error ('accesorio no encontrado')
     // Si el objeto viene vacio, arrojar un Error ('No se detectaron cambios a aplicar')
     // Una vez modificado el accesorio del array, devolver el accesorio modificado
+    if (Object.keys(obj).length === 0)
+      throw new Error('No se detectaron cambios a aplicar');
+    let accesoryFound = accessories.find(a => a.id === obj.id);
+    if (!accesoryFound) throw new Error('accesorio no encontrado');
+
+    accesoryFound = { ...accesoryFound, ...obj };
+    for (let i = 0; i < accessories.length; i++) {
+      if (accessories[i].id === accesoryFound.id) {
+        accessories[i] = accesoryFound;
+      }
+    }
+    return accesoryFound;
   },
 
   increaseAccesoryPopularity: function (accessoryId) {
@@ -103,6 +122,9 @@ module.exports = {
     // Si se actualizó la popularidad del accesorio, devolver true
     // Si no se actualizó la popularidad del accesorio, debe devolver false
     //let popular = this.getAccessoryPopularity(accessoryId)
+    const accesoryFound = accessories.found(acc => acc.id === accessoryId);
+    if (accesoryFound.popularity === 'low') return false;
+    else return true;
   },
 
   addCatAccessory: function (catName, accessoryId) {
@@ -110,6 +132,19 @@ module.exports = {
     // Si el felin@ ya tiene puesto el accesorio, arrojar un Error('El gato <nombre_gato> ya tiene el accesorio puesto') y no lo agrega
     // Si el gato no existe arrojar un Error ('El gato <nombre_gato> no existe')
     // Si el id de accesorio no existe arrojar un Error ('accesorio no encontrado' y no actualiza la popularidad)
+    const felinoFound = cats.find(c => c.name === catName);
+    if (!felinoFound) throw new Error(`El gato ${catName} no existe`);
+    const accesorioFound = accessories.find(acc => acc.id === accessoryId);
+    if (!accesorioFound) throw new Error('Accesorio no encontrado');
+
+    const catAcc = felinoFound.accessories.find(acc => acc.id === accessoryId);
+    if (catAcc)
+      throw new Error(`El gato ${catName} ya tiene el accesorio puesto`);
+
+    felinoFound.accessories.push(accesorioFound);
+    this.getAccessoryPopularity(accessoryId);
+
+    return `El accesorio ${accesorioFound.type} fue agregado a ${catName} con exito`;
   },
 
   getAccessoryPopularity: function (accessoryId) {
@@ -117,5 +152,23 @@ module.exports = {
     // Para eso deberás comprobar cuantos gatos visten el accesorio recibido por parámetros (es un id)
     // Si la cantidad de gatos que visten el accesorio son 2, entonces la popularidad del accesorio debe valer 'average'
     // Si la cantidad de gatos que visten el accesorio son 3, entonces la popularidad del accesorio debe valer 'high'
+    const accesoryFound = accessories.find(acc => acc.id === accessoryId);
+    if (!accesoryFound) throw new Error('Accesorio no encontrado');
+    let contador = 0;
+    cats.map(cat => {
+      const catAcc = cat.accessories.find(acc => acc.id === accessoryId);
+      if (catAcc) contador++;
+    });
+
+    if (contador < 2) {
+      accessories.find(acc => acc.id === accessoryId).popularity = 'low';
+      return 'low';
+    } else if (contador === 2) {
+      accessories.find(acc => acc.id === accessoryId).popularity = 'average';
+      return 'average';
+    } else if (contador >= 3) {
+      accessories.find(acc => acc.id === accessoryId).popularity = 'high';
+      return 'high';
+    }
   },
 };
